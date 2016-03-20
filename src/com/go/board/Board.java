@@ -22,9 +22,7 @@ public class Board extends JFrame {
 
     public static GameCycle cycle;
 
-    public int rows;
-    public int columns;
-    public int nodeSize;
+    public BoardType type;
 
     public BoardNode[][] nodes;
 
@@ -37,19 +35,13 @@ public class Board extends JFrame {
     public final int BOARD_Y = 30;
 
     /**
-     * Initialize board
+     * Initialize the board
      * 
-     * @param rows
-     *            rows of squares in the grid
-     * @param columns
-     *            columns of squares in the grid
-     * @param nodeSize
-     *            the size of each node on the grid
+     * @param type
+     *            the type of board (enum)
      */
-    public Board(int rows, int columns, int nodeSize) {
-        this.rows = rows;
-        this.columns = columns;
-        this.nodeSize = nodeSize;
+    public Board(BoardType type) {
+        this.type = type;
 
         cycle = new GameCycle();
 
@@ -60,7 +52,7 @@ public class Board extends JFrame {
      * Build the board frame
      */
     private void buildBoard() {
-        setTitle("GoApp - " + rows + "x" + columns + " Board");
+        setTitle("GoApp - " + type.rows + "x" + type.columns + " Board");
         setSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
         setLocationRelativeTo(null);
         addWindowListener(new WindowAdapter() {
@@ -80,17 +72,24 @@ public class Board extends JFrame {
      * Build panels of the board frame
      */
     private void buildPanels() {
-        // panels
+        // main conent panel
         JPanel backPanel = new JPanel();
         backPanel.setLayout(null);
 
+        // panel with the board's node grid
         JPanel boardPanel = new JPanel(new GridBagLayout());
         GridBagConstraints cons = new GridBagConstraints();
         boardPanel.setBounds(BOARD_X, BOARD_Y, BOARD_WIDTH, BOARD_HEIGHT);
 
         // layer panel on top of the board grid that pieces are drawn onto
         JPanel piecePanel = new JPanel();
-        piecePanel.setBounds(BOARD_X - nodeSize / 2, BOARD_Y - nodeSize / 2, BOARD_WIDTH + nodeSize, BOARD_HEIGHT + nodeSize);
+        // the piece layer needs to be slightly larger than game board
+        // so that pieces can be displayed over the edge
+        int pieceLayerX = BOARD_X - type.pieceSize / 2;
+        int pieceLayery = BOARD_Y - type.pieceSize / 2;
+        int pieceLayerWidth = BOARD_WIDTH + type.pieceSize;
+        int pieceLayerHeight = BOARD_HEIGHT + type.pieceSize;
+        piecePanel.setBounds(pieceLayerX, pieceLayery, pieceLayerWidth, pieceLayerHeight);
         piecePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         piecePanel.setOpaque(false);
 
@@ -98,28 +97,28 @@ public class Board extends JFrame {
         layeredPane.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
         // create the board's grid
-        int squareWidth = BOARD_WIDTH / rows;
-        int squareHeight = BOARD_HEIGHT / columns;
+        int squareWidth = BOARD_WIDTH / type.rows;
+        int squareHeight = BOARD_HEIGHT / type.columns;
         // the row/column lengths are + 1 because each square has a node on each corner
         // basically resulting in an extra row and column
-        nodes = new BoardNode[rows + 1][columns + 1];
-        for (int row = 0; row < rows; row++) {
-            for (int column = 0; column < columns; column++) {
+        nodes = new BoardNode[type.rows + 1][type.columns + 1];
+        for (int row = 0; row < type.rows; row++) {
+            for (int column = 0; column < type.columns; column++) {
 
                 // create node for the top left corner of the square
                 int nodeX = squareWidth * row;
                 int nodeY = squareHeight * column;
                 nodes[row][column] = new BoardNode(nodeX, nodeY, this);
                 // if this is the end of a row then insert extra node on the right
-                if (row == rows - 1) {
+                if (row == type.rows - 1) {
                     nodes[row + 1][column] = new BoardNode(nodeX + squareWidth, nodeY, this);
                 }
                 // if this is the last column then add nodes at the bottom
-                if (column == columns - 1) {
+                if (column == type.columns - 1) {
                     nodes[row][column + 1] = new BoardNode(nodeX, nodeY + squareHeight, this);
                 }
                 // if this is the bottom right corner of the whole grid then add a node
-                if (row == rows - 1 && column == columns - 1) {
+                if (row == type.rows - 1 && column == type.columns - 1) {
                     nodes[row + 1][column + 1] = new BoardNode(nodeX + squareWidth, nodeY + squareHeight, this);
                 }
 
@@ -127,7 +126,7 @@ public class Board extends JFrame {
                 JPanel square = new JPanel();
                 square.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
                 square.setPreferredSize(new Dimension(squareWidth, squareHeight));
-                square.setBackground(Color.LIGHT_GRAY);
+                square.setBackground(new Color(219, 195, 86));
                 cons.gridx = row;
                 cons.gridy = column;
                 // add square to panel
@@ -143,9 +142,8 @@ public class Board extends JFrame {
                 for (int row = 0; row < nodes.length; row++) {
                     for (int column = 0; column < nodes[0].length; column++) {
                         BoardNode node = nodes[row][column];
-                        if (checkDistance(nodeSize, e.getX(), e.getY(), node.x, node.y)) {
+                        if (checkDistance(type.nodeSize, e.getX(), e.getY(), node.x, node.y)) {
                             if (node.piece == null) {
-                                System.out.println("node " + row + ", " + column);
                                 placePiece(node, piecePanel);
                             }
                         }
@@ -173,9 +171,11 @@ public class Board extends JFrame {
      *            the panel the piece is places on
      */
     private void placePiece(BoardNode node, JPanel panel) {
+        // create and place board piece
         node.piece = new BoardPiece(cycle.currentPlayer, node);
         panel.add(node.piece.getComponent());
         repaint();
+        // advance game cycle
         cycle.cycle();
     }
 

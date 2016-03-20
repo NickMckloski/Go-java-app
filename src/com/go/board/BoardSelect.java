@@ -94,7 +94,7 @@ public class BoardSelect extends JFrame {
      */
     private void selectBoard(BoardType type) {
         setVisible(false);
-        board = new Board(type.rows, type.columns, type.nodeSize);
+        board = new Board(type);
     }
 
 }

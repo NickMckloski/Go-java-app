@@ -1,7 +1,5 @@
 package com.go;
 
-import java.awt.Color;
-
 import com.go.player.Player;
 
 public class GameCycle {
@@ -10,8 +8,8 @@ public class GameCycle {
     public Player currentPlayer;
 
     public GameCycle() {
-        players[0] = new Player(0, Color.WHITE);
-        players[1] = new Player(1, Color.BLACK);
+        players[0] = new Player(0, "white");
+        players[1] = new Player(1, "black");
 
         currentPlayer = players[0];
     }
