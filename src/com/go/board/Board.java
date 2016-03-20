@@ -12,6 +12,7 @@ import java.awt.geom.Point2D;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 import com.go.Game;
@@ -20,18 +21,20 @@ import com.go.GameCycle;
 public class Board extends JFrame {
 
     public static GameCycle cycle;
-    
+
     public int rows;
     public int columns;
     public int nodeSize;
 
     public BoardNode[][] nodes;
 
-    public static final int FRAME_WIDTH = 900;
-    public static final int FRAME_HEIGHT = 650;
+    public final int FRAME_WIDTH = 900;
+    public final int FRAME_HEIGHT = 680;
 
-    public static final int BOARD_WIDTH = 589;
-    public static final int BOARD_HEIGHT = 589;
+    public final int BOARD_WIDTH = 589;
+    public final int BOARD_HEIGHT = 589;
+    public final int BOARD_X = 150;
+    public final int BOARD_Y = 30;
 
     /**
      * Initialize board
@@ -47,9 +50,9 @@ public class Board extends JFrame {
         this.rows = rows;
         this.columns = columns;
         this.nodeSize = nodeSize;
-        
+
         cycle = new GameCycle();
-        
+
         buildBoard();
     }
 
@@ -79,9 +82,20 @@ public class Board extends JFrame {
     private void buildPanels() {
         // panels
         JPanel backPanel = new JPanel();
+        backPanel.setLayout(null);
+
         JPanel boardPanel = new JPanel(new GridBagLayout());
         GridBagConstraints cons = new GridBagConstraints();
-        boardPanel.setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT));
+        boardPanel.setBounds(BOARD_X, BOARD_Y, BOARD_WIDTH, BOARD_HEIGHT);
+
+        // layer panel on top of the board grid that pieces are drawn onto
+        JPanel piecePanel = new JPanel();
+        piecePanel.setBounds(BOARD_X - nodeSize / 2, BOARD_Y - nodeSize / 2, BOARD_WIDTH + nodeSize, BOARD_HEIGHT + nodeSize);
+        piecePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        piecePanel.setOpaque(false);
+
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
         // create the board's grid
         int squareWidth = BOARD_WIDTH / rows;
@@ -95,24 +109,25 @@ public class Board extends JFrame {
                 // create node for the top left corner of the square
                 int nodeX = squareWidth * row;
                 int nodeY = squareHeight * column;
-                nodes[row][column] = new BoardNode(nodeX, nodeY);
+                nodes[row][column] = new BoardNode(nodeX, nodeY, this);
                 // if this is the end of a row then insert extra node on the right
                 if (row == rows - 1) {
-                    nodes[row + 1][column] = new BoardNode(nodeX + squareWidth, nodeY);
+                    nodes[row + 1][column] = new BoardNode(nodeX + squareWidth, nodeY, this);
                 }
                 // if this is the last column then add nodes at the bottom
                 if (column == columns - 1) {
-                    nodes[row][column + 1] = new BoardNode(nodeX, nodeY + squareHeight);
+                    nodes[row][column + 1] = new BoardNode(nodeX, nodeY + squareHeight, this);
                 }
                 // if this is the bottom right corner of the whole grid then add a node
                 if (row == rows - 1 && column == columns - 1) {
-                    nodes[row + 1][column + 1] = new BoardNode(nodeX + squareWidth, nodeY + squareHeight);
+                    nodes[row + 1][column + 1] = new BoardNode(nodeX + squareWidth, nodeY + squareHeight, this);
                 }
 
                 // create square
                 JPanel square = new JPanel();
                 square.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
                 square.setPreferredSize(new Dimension(squareWidth, squareHeight));
+                square.setBackground(Color.LIGHT_GRAY);
                 cons.gridx = row;
                 cons.gridy = column;
                 // add square to panel
@@ -129,20 +144,56 @@ public class Board extends JFrame {
                     for (int column = 0; column < nodes[0].length; column++) {
                         BoardNode node = nodes[row][column];
                         if (checkDistance(nodeSize, e.getX(), e.getY(), node.x, node.y)) {
-                            System.out.println("node " + row + ", " + column);
+                            if (node.piece == null) {
+                                System.out.println("node " + row + ", " + column);
+                                placePiece(node, piecePanel);
+                            }
                         }
                     }
                 }
             }
+
         });
 
-        // add board to panel
-        backPanel.add(boardPanel);
+        // add panels
+        layeredPane.add(piecePanel, 0);
+        layeredPane.add(boardPanel, 1);
+        backPanel.add(layeredPane);
 
         // finished
         setContentPane(backPanel);
     }
-    
+
+    /**
+     * Places a board piece and advances the game cycle
+     * 
+     * @param node
+     *            the node the piece is placed on
+     * @param panel
+     *            the panel the piece is places on
+     */
+    private void placePiece(BoardNode node, JPanel panel) {
+        node.piece = new BoardPiece(cycle.currentPlayer, node);
+        panel.add(node.piece.getComponent());
+        repaint();
+        cycle.cycle();
+    }
+
+    /**
+     * Checks the distance of two points
+     * 
+     * @param range
+     *            distance to check for
+     * @param x1
+     *            x1
+     * @param y1
+     *            y1
+     * @param x2
+     *            x2
+     * @param y2
+     *            y2
+     * @return
+     */
     public static boolean checkDistance(int range, int x1, int y1, int x2, int y2) {
         double distance = Point2D.distance(x1, y1, x2, y2);
         if (distance < range)

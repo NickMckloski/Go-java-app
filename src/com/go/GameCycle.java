@@ -6,7 +6,7 @@ import com.go.player.Player;
 
 public class GameCycle {
 
-    public Player[] players;
+    public Player[] players = new Player[2];
     public Player currentPlayer;
 
     public GameCycle() {
