@@ -20,10 +20,17 @@ import com.go.GameCycle;
 
 public class Board extends JFrame {
 
+    /**
+     * The gamecycle that this board is using
+     */
     public static GameCycle cycle;
-
+    /**
+     * The type of board being played
+     */
     public BoardType type;
-
+    /**
+     * Nodes on the board
+     */
     public BoardNode[][] nodes;
 
     public final int FRAME_WIDTH = 900;
@@ -69,7 +76,7 @@ public class Board extends JFrame {
     }
 
     /**
-     * Build panels of the board frame
+     * Build panels of the board
      */
     private void buildPanels() {
         // main conent panel

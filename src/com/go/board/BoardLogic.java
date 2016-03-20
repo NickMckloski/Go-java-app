@@ -70,13 +70,9 @@ public class BoardLogic {
         // check if the nodes are nore null
         if (nodes[row][column].piece != null && rootNode.piece != null) {
 
-            System.out.println("Checking node " + row + ", " + column);
-
             // check to see if the comparing nodes have the same owner
             // check if the group position already been filled with a node
             if (nodes[row][column].piece.owner == rootNode.piece.owner && group[row][column] == null) {
-
-                System.out.println("Found group node " + row + ", " + column);
 
                 // save this group member
                 group[row][column] = nodes[row][column];
@@ -120,8 +116,6 @@ public class BoardLogic {
                     // if the board node in this position is null then the group isn't surrounded
                     if (nodes[row][column] != null) {
 
-                        System.out.println("Looking at neighbor nodes of " + row + ", " + column);
-
                         // look at the neighbours
                         groupHasNodes = true;
 
@@ -129,15 +123,12 @@ public class BoardLogic {
                         if (row != type.rows)
                             // if board node in that position is null then the group is not surrounded
                             if (nodes[row + 1][column].piece != null) {
-                                System.out.println("checking neighbor " + (row + 1) + ", " + column);
                                 // check if the board node is the same owner as the root node
                                 // then check if the node in the group is null
                                 // if the node is the same owner and the group node is not null then piece is not surrounded
                                 if (nodes[row + 1][column].piece.owner == rootNode.piece.owner
-                                        && group[row + 1][column] == null) {
-                                    System.out.println("neighbor enemy piece at " + (row + 1) + ", " + column);
+                                        && group[row + 1][column] == null)
                                     canRemove = false;
-                                }
                             } else
                                 canRemove = false;
 
@@ -145,15 +136,12 @@ public class BoardLogic {
                         if (row != 0)
                             // if board node in that position is null then the group is not surrounded
                             if (nodes[row - 1][column].piece != null) {
-                                System.out.println("checking neighbor " + (row - 1) + ", " + column);
                                 // check if the board node is the same owner as the root node
                                 // then check if the node in the group is null
                                 // if the node is the same owner and the group node is not null then piece is not surrounded
                                 if (nodes[row - 1][column].piece.owner == rootNode.piece.owner
-                                        && group[row - 1][column] == null) {
-                                    System.out.println("neighbor enemy piece at " + (row - 1) + ", " + column);
+                                        && group[row - 1][column] == null)
                                     canRemove = false;
-                                }
                             } else
                                 canRemove = false;
 
@@ -161,15 +149,12 @@ public class BoardLogic {
                         if (column != type.columns)
                             // if board node in that position is null then the group is not surrounded
                             if (nodes[row][column + 1].piece != null) {
-                                System.out.println("checking neighbor " + row + ", " + (column + 1));
                                 // check if the board node is the same owner as the root node
                                 // then check if the node in the group is null
                                 // if the node is the same owner and the group node is not null then piece is not surrounded
                                 if (nodes[row][column + 1].piece.owner == rootNode.piece.owner
-                                        && group[row][column + 1] == null) {
-                                    System.out.println("neighbor enemy piece at " + row + ", " + (column + 1));
+                                        && group[row][column + 1] == null)
                                     canRemove = false;
-                                }
                             } else
                                 canRemove = false;
 
@@ -177,15 +162,12 @@ public class BoardLogic {
                         if (column != 0)
                             // if board node in that position is null then the group is not surrounded
                             if (nodes[row][column - 1].piece != null) {
-                                System.out.println("checking neighbor " + row + ", " + (column - 1));
                                 // check if the board node is the same owner as the root node
                                 // then check if the node in the group is null
                                 // if the node is the same owner and the group node is not null then piece is not surrounded
                                 if (nodes[row][column - 1].piece.owner == rootNode.piece.owner
-                                        && group[row][column - 1] == null) {
-                                    System.out.println("neighbor enemy piece at " + row + ", " + (column - 1));
+                                        && group[row][column - 1] == null)
                                     canRemove = false;
-                                }
                             } else
                                 canRemove = false;
 
@@ -195,7 +177,6 @@ public class BoardLogic {
             }
         }
 
-        System.out.println(canRemove && groupHasNodes);
         if (canRemove && groupHasNodes)
             rootNode.board.removePieces(group, panel);
     }
