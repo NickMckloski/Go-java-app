@@ -15,9 +15,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.go.Game;
+import com.go.GameCycle;
 
 public class Board extends JFrame {
 
+    public static GameCycle cycle;
+    
     public int rows;
     public int columns;
     public int nodeSize;
@@ -44,6 +47,9 @@ public class Board extends JFrame {
         this.rows = rows;
         this.columns = columns;
         this.nodeSize = nodeSize;
+        
+        cycle = new GameCycle();
+        
         buildBoard();
     }
 
