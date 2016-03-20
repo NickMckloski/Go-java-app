@@ -50,9 +50,6 @@ public class BoardSelect extends JFrame {
         // components
         JLabel label = new JLabel("Select a board size:");
         label.setFont(new Font("Arial", Font.BOLD, 18));
-        JButton x5 = new JButton("5x5");
-        JButton x9 = new JButton("9x9");
-        JButton x19 = new JButton("19x19");
 
         // configure and add
         cons.gridx = 0;
@@ -63,22 +60,25 @@ public class BoardSelect extends JFrame {
         cons.fill = GridBagConstraints.HORIZONTAL;
         cons.insets = new Insets(10, 10, 0, 10);
         panel.add(label, cons);
-        cons.gridx = 0;
-        cons.gridy = 1;
-        cons.ipady = 50;
-        cons.ipadx = 50;
-        cons.gridwidth = 2;
-        cons.insets = new Insets(10, 10, 10, 10);
-        panel.add(x5, cons);
-        cons.gridx = 2;
-        panel.add(x9, cons);
-        cons.gridx = 4;
-        panel.add(x19, cons);
 
-        // action listeners
-        x5.addActionListener(e -> selectBoard(5, 5));
-        x9.addActionListener(e -> selectBoard(9, 9));
-        x19.addActionListener(e -> selectBoard(19, 19));
+        // add board options
+        for (int i = 0; i < BoardType.values().length; i++) {
+            BoardType type = BoardType.values()[i];
+            JButton button = new JButton(type.rows + "x" + type.columns);
+            // action listener
+            button.addActionListener(e -> selectBoard(type));
+            if (i == 0) {
+                cons.gridx = 0;
+                cons.gridy = 1;
+                cons.ipady = 50;
+                cons.ipadx = 50;
+                cons.gridwidth = 2;
+                cons.insets = new Insets(10, 10, 10, 10);
+            } else {
+                cons.gridx = i * 2;
+            }
+            panel.add(button, cons);
+        }
 
         // finished
         setContentPane(panel);
@@ -92,9 +92,9 @@ public class BoardSelect extends JFrame {
      * @param columns
      *            columns on the game board
      */
-    private void selectBoard(int rows, int columns) {
+    private void selectBoard(BoardType type) {
         setVisible(false);
-        board = new Board(rows, columns);
+        board = new Board(type.rows, type.columns, type.nodeSize);
     }
 
 }
