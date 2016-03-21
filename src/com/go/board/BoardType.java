@@ -3,6 +3,7 @@ package com.go.board;
 public enum BoardType {
     X5 (5, 5, 40, 60),
     X9 (9, 9, 30, 50),
+    X13 (13, 13, 23, 35),
     X19 (19, 19, 15, 25);
 
     public int rows;

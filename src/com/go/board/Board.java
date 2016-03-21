@@ -2,16 +2,23 @@ package com.go.board;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
@@ -33,14 +40,18 @@ public class Board extends JFrame {
      */
     public BoardNode[][] nodes;
 
-    public final int FRAME_WIDTH = 900;
-    public final int FRAME_HEIGHT = 680;
+    public final int FRAME_WIDTH = 1000;
+    public final int FRAME_HEIGHT = 730;
 
     public final int BOARD_WIDTH = 589;
     public final int BOARD_HEIGHT = 589;
-    public final int BOARD_X = 150;
-    public final int BOARD_Y = 30;
+    public final int BOARD_X = 198;
+    public final int BOARD_Y = 75;
 
+    private JLabel turnTitle;
+    private JPanel p1Panel;
+    private JPanel p2Panel;
+    
     /**
      * Initialize the board
      * 
@@ -161,10 +172,38 @@ public class Board extends JFrame {
             }
 
         });
-
+        
+        // turn title above board
+        turnTitle = new JLabel("Player 1's turn (White)");
+        turnTitle.setBounds(BOARD_X, 15, FRAME_WIDTH, 25);
+        turnTitle.setFont(new Font("Arial", Font.PLAIN, 18));
+        
+        // player 1's captures
+        JLabel p1Captures = new JLabel("Player 1's captures:");
+        p1Captures.setBounds(15, BOARD_Y, 200, 25);
+        p1Captures.setFont(new Font("Arial", Font.PLAIN, 14));
+        
+        p1Panel = new JPanel();
+        p1Panel.setBounds(15, BOARD_Y + 30, 130, FRAME_HEIGHT - 400); 
+        p1Panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));       
+        
+        // player 2's captures
+        JLabel p2Captures = new JLabel("Player 2's captures:");
+        p2Captures.setBounds(BOARD_X + BOARD_WIDTH + 50, BOARD_Y, 200, 25);
+        p2Captures.setFont(new Font("Arial", Font.PLAIN, 14));
+        
+        p2Panel = new JPanel();
+        p2Panel.setBounds(BOARD_X + BOARD_WIDTH + 50, BOARD_Y + 30, 130, FRAME_HEIGHT - 400); 
+        p2Panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1)); 
+        
         // add panels
         layeredPane.add(piecePanel, 0);
         layeredPane.add(boardPanel, 1);
+        backPanel.add(turnTitle);
+        backPanel.add(p1Captures);
+        backPanel.add(p1Panel);
+        backPanel.add(p2Captures);
+        backPanel.add(p2Panel);
         backPanel.add(layeredPane);
 
         // finished
@@ -192,6 +231,7 @@ public class Board extends JFrame {
 
         // advance game cycle
         cycle.cycle();
+        turnTitle.setText("Player "+(cycle.currentPlayer.order+1)+"'s turn ("+cycle.currentPlayer.color+")");
     }
 
     /**
@@ -209,6 +249,21 @@ public class Board extends JFrame {
                 if (group[row][column] != null) {
                     // remove from panel
                     panel.remove(group[row][column].piece.getComponent());
+                    
+                    //add to the other players captures
+                    JLabel piece = new JLabel();
+                    int pieceSize = 15;
+                    try {
+                        BufferedImage image = ImageIO.read(new File("data/images/" + nodes[row][column].piece.owner.color + ".png"));
+                        piece.setIcon(new ImageIcon(image.getScaledInstance(pieceSize, pieceSize, Image.SCALE_SMOOTH)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if(nodes[row][column].piece.owner.order == 0)
+                        p2Panel.add(piece);
+                    else
+                        p1Panel.add(piece);
+                    
                     // clear piece from node
                     nodes[row][column].piece = null;
                 }
